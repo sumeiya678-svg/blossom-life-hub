@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blossom’s Daily Routine</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff7fb;--card:#fff;--ink:#2a1b3d;--mute:#7a6a8c;--pink:#f0508c;--petal:#ffd9e8;--mint:#2fb590;--sun:#ffb627;--line:#f1dfe9}
+@media(prefers-color-scheme:dark){:root{--bg:#1a1226;--card:#251a36;--ink:#fbeaf3;--mute:#b8a6c9;--pink:#ff7aa8;--petal:#4a2744;--mint:#4fd1ab;--sun:#ffc54d;--line:#3a2a52}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.45;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+main{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:1.7rem;margin:0;font-weight:800}
+h2{font-size:1.1rem;margin:0 0 6px;font-weight:800}
+.sub{color:var(--mute);margin:2px 0 0}
+.hero{display:flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:28px;padding:16px;margin-top:14px}
+.hero svg{width:136px;height:136px;flex:none}
+.petal{fill:var(--petal);transition:fill .5s}
+.petal.on{fill:var(--pink)}
+.stats p{margin:0 0 4px}
+.big{font-size:1.25rem;font-weight:800}
+.tabs{display:flex;gap:8px;margin-top:14px}
+.tabs button{flex:1;padding:10px;border-radius:99px;border:2px solid var(--pink);background:transparent;color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--pink);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-top:14px}
+.card.today{border-color:var(--pink);border-width:2px}
+.cls{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px dashed var(--line)}
+.cls:first-of-type{border-top:0}
+.cls span{color:var(--mute)}
+.badge{background:var(--mint);color:#fff;border-radius:99px;padding:1px 9px;font-size:.78rem;font-weight:600;margin-left:6px}
+.badge.next{background:var(--sun);color:#2a1b3d}
+.blk{display:flex;gap:10px;align-items:center;padding:9px 10px;border-radius:14px;margin-top:6px;border:2px solid transparent}
+.blk.now{border-color:var(--pink);background:var(--petal);animation:pulse 2.4s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(240,80,140,.16)}}
+.blk .t{width:68px;flex:none;color:var(--mute);font-size:.85rem}
+.blk .nm{flex:1}
+.blk.done .nm{text-decoration:line-through;color:var(--mute)}
+.chk{width:32px;height:32px;border-radius:50%;border:2px solid var(--pink);background:transparent;color:#fff;font-size:1rem;cursor:pointer;flex:none}
+.done .chk{background:var(--mint);border-color:var(--mint)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--petal);border-radius:99px;padding:4px 12px;font-weight:600}
+.cups{display:flex;gap:6px;flex-wrap:wrap}
+.cups button{width:34px;height:42px;border-radius:8px 8px 12px 12px;border:2px solid var(--mint);background:transparent;font-size:1.1rem;cursor:pointer}
+.cups button.on{background:var(--mint)}
+input{width:100%;margin-top:6px;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+button:focus-visible,input:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.reset{margin-top:14px;background:none;border:0;color:var(--mute);text-decoration:underline;font:inherit;cursor:pointer}
+footer{margin:22px 0 10px;text-align:center;color:var(--mute);font-size:.9rem}
+.fly{position:fixed;top:-30px;font-size:1.6rem;pointer-events:none;animation:fall 2.4s linear forwards;z-index:9}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1 id="hi"></h1>
+  <p class="sub" id="date"></p>
+  <div id="app"></div>
+  <footer>Progress over perfection. Consistency over motivation. Your peace matters. 🌸</footer>
+</main>
+<script>
+/* ===== EDIT YOUR ROUTINE HERE ===== */
+const hm=(h,m=0)=>h*60+m;
+
+// [start time, emoji, task]. Prayer times: change to your actual local times.
+const BLOCKS=[
+[hm(6),"💧","Wake up and drink water"],[hm(6,15),"🕌","Fajr"],[hm(6,30),"🚿","Shower and skincare"],
+[hm(6,50),"👗","Get dressed"],[hm(7),"🍳","Breakfast"],[hm(7,20),"🇫🇷","French on Duolingo"],
+[hm(7,35),"📖","Atomic Habits"],[hm(7,50),"🎒","Pack your bag"],[hm(12,30),"🕌","Lunch and Dhuhr"],
+[hm(15,30),"📝","Review lecture notes"],[hm(16),"🍎","Rest and snack"],[hm(16,30),"🏋️","Gym or home workout"],
+[hm(17,15),"🕌","Shower and Asr"],[hm(17,45),"📈","Forex learning, charts, trading journal"],
+[hm(18,30),"🎨","Henna, business admin, client work"],[hm(19),"🍽️","Dinner and Maghrib"],
+[hm(19,30),"💻","Web development"],[hm(20,15),"📊","Data analysis"],[hm(21),"✍️","Assignments and makeup"],
+[hm(21,30),"🕌","Isha"],[hm(21,45),"💰","Finance tracking"],[hm(22),"🎧","Atomic Habits or a podcast"],
+[hm(22,15),"🗓️","Prepare for tomorrow"],[hm(22,30),"🌙","Night skincare and journaling"],
+[hm(22,45),"🧘","Wind down"],[hm(23),"😴","Sleep"]
+];
+
+// Lectures by weekday (1 = Monday ... 5 = Friday): [start, end, unit, room]
+const CLS={
+1:[[hm(16),hm(17),"COMS 111","Online"]],
+2:[[hm(8),hm(9),"CMGT 101","PST4"],[hm(12),hm(15),"CENT 121","CH3"],[hm(17),hm(19),"CMGT 101","PST4"]],
+3:[[hm(7),hm(8),"ECON 111","Online"],[hm(11),hm(13),"COPM 141","NEWDH"],[hm(15),hm(16),"CENT 121","B1"],[hm(18),hm(20),"ECON 111","Online"]],
+4:[[hm(10),hm(11),"COMS 111","Online"],[hm(11),hm(12),"COPM 141","DH1"]],
+5:[[hm(8),hm(9),"CACT 111","B3"],[hm(10),hm(12),"CACT 111","PST3"],[hm(11),hm(12),"COMS 111","Online (clashes with CACT 111)"],[hm(14),hm(16),"CENT 121","PST3"],[hm(16),hm(18),"COMP 101","Online"]]
+};
+
+// Weekly focus (0 = Sunday)
+const FOCUS=["Rest, weekly review, budgeting, self-care","Forex, Data Analysis","Web Dev, Henna","Forex, French","Data Analysis, Makeup","Forex, Financial Management","Henna business, Gym, Web Dev"];
+/* ===== END OF EDITABLE PART ===== */
+
+const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const $=s=>document.querySelector(s);
+const ds=d=>d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+const f=m=>{const h=Math.floor(m/60);return (h%12||12)+":"+String(m%60).padStart(2,"0")+(h<12?" AM":" PM")};
+const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+
+let tab="today", now=new Date();
+let st=ld("blossom-"+ds(now),{done:[],water:0,top:["","",""]});
+const pct=()=>Math.round(st.done.length/BLOCKS.length*100);
+
+function save(){
+  sv("blossom-"+ds(new Date()),st);
+  const h=ld("blossom-hist",{});h[ds(new Date())]=pct();sv("blossom-hist",h);
+}
+function streak(){
+  const h=ld("blossom-hist",{});let n=0,d=new Date();
+  if((h[ds(d)]||0)<70)d.setDate(d.getDate()-1);
+  while((h[ds(d)]||0)>=70){n++;d.setDate(d.getDate()-1)}
+  return n;
+}
+function flower(p){
+  const on=Math.round(p/100*12);let s='<svg viewBox="0 0 100 100" role="img" aria-label="'+p+'% of today done">';
+  for(let i=0;i<12;i++)s+='<g transform="rotate('+i*30+' 50 50)"><ellipse class="petal'+(i<on?" on":"")+'" cx="50" cy="20" rx="8" ry="16"/></g>';
+  return s+'<circle cx="50" cy="50" r="17" fill="#ffb627"/><text x="50" y="55" text-anchor="middle" font-size="14" font-weight="800" fill="#2a1b3d">'+p+'%</text></svg>';
+}
+function classRows(day,cur,live){
+  const list=CLS[day];if(!list)return '<p class="sub">No lectures. Use the time to rest, study or create.</p>';
+  const nx=live?list.findIndex(c=>c[0]>cur):-1;
+  return list.map((c,i)=>{
+    const isNow=live&&cur>=c[0]&&cur<c[1];
+    return '<div class="cls"><div><b>'+c[2]+'</b>'+(isNow?'<span class="badge">Now</span>':(i===nx?'<span class="badge next">Next</span>':''))+'<br><span>'+c[3]+'</span></div><span>'+f(c[0])+' to '+f(c[1])+'</span></div>';
+  }).join("");
+}
+function render(){
+  now=new Date();const cur=now.getHours()*60+now.getMinutes(),dow=now.getDay(),p=pct();
+  const g=cur<720?"Good morning":cur<1020?"Good afternoon":"Good evening";
+  $("#hi").textContent=g+", Blossom 🌸";
+  $("#date").textContent=DAYS[dow]+", "+now.toLocaleDateString(undefined,{day:"numeric",month:"long"})+" · "+f(cur);
+  let h='<div class="hero">'+flower(p)+'<div class="stats"><p class="big">'+st.done.length+' of '+BLOCKS.length+' done</p><p>🔥 '+streak()+'-day streak</p><p class="sub">A day counts at 70% or more.</p></div></div>';
+  h+='<div class="tabs" role="tablist"><button role="tab" data-tab="today" aria-selected="'+(tab==="today")+'">Today</button><button role="tab" data-tab="week" aria-selected="'+(tab==="week")+'">My week</button></div>';
+  if(tab==="today"){
+    h+='<div class="card"><h2>Lectures today</h2>'+classRows(dow,cur,true)+'</div>';
+    h+='<div class="card"><h2>Today’s focus</h2><div class="chips">'+FOCUS[dow].split(", ").map(x=>'<span class="chip">'+x+'</span>').join("")+'</div></div>';
+    h+='<div class="card"><h2>My top 3 priorities</h2>'+[0,1,2].map(i=>'<input data-top="'+i+'" aria-label="Priority '+(i+1)+'" placeholder="Priority '+(i+1)+'" value="'+(st.top[i]||"").replace(/"/g,"&quot;")+'">').join("")+'</div>';
+    h+='<div class="card"><h2>Routine</h2>';
+    BLOCKS.forEach((b,i)=>{
+      const nxt=BLOCKS[i+1]?BLOCKS[i+1][0]:1440,isNow=cur>=b[0]&&cur<nxt,d=st.done.includes(i);
+      h+='<div class="blk'+(isNow?' now':'')+(d?' done':'')+'"><span class="t">'+f(b[0])+'</span><span class="nm">'+b[1]+' '+b[2]+'</span><button class="chk" data-i="'+i+'" aria-label="Mark '+b[2]+' done">'+(d?'✓':'')+'</button></div>';
+    });
+    h+='</div><div class="card"><h2>Water ('+st.water+' of 8 glasses)</h2><div class="cups">'+[...Array(8)].map((_,i)=>'<button data-w="'+i+'" class="'+(i<st.water?'on':'')+'" aria-label="Glass '+(i+1)+'">💧</button>').join("")+'</div></div>';
+    h+='<button class="reset" id="reset">Clear today’s ticks</button>';
+  }else{
+    for(let k=1;k<=7;k++){
+      const d=k%7;
+      h+='<div class="card'+(d===dow?' today':'')+'"><h2>'+DAYS[d]+(d===dow?' (today)':'')+'</h2><p class="sub">Focus: '+FOCUS[d]+'</p>'+classRows(d,0,false)+'</div>';
+    }
+  }
+  $("#app").innerHTML=h;
+}
+function boom(){
+  const e=["🌸","✨","💖","🌼","🎉"];
+  for(let i=0;i<28;i++){
+    const s=document.createElement("span");s.className="fly";s.textContent=e[i%e.length];
+    s.style.left=Math.random()*95+"vw";s.style.animationDelay=Math.random()*.6+"s";
+    document.body.appendChild(s);setTimeout(()=>s.remove(),3200);
+  }
+}
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button");if(!t)return;
+  if(t.dataset.tab){tab=t.dataset.tab;render();return}
+  if(t.dataset.i!==undefined){
+    const i=+t.dataset.i,k=st.done.indexOf(i);
+    if(k>-1)st.done.splice(k,1);else st.done.push(i);
+    save();render();if(st.done.length===BLOCKS.length)boom();return;
+  }
+  if(t.dataset.w!==undefined){const n=+t.dataset.w;st.water=st.water===n+1?n:n+1;save();render();return}
+  if(t.id==="reset"&&confirm("Clear all of today’s ticks?")){st={done:[],water:0,top:st.top};save();render()}
+});
+document.addEventListener("input",e=>{
+  if(e.target.dataset.top!==undefined){st.top[+e.target.dataset.top]=e.target.value;save()}
+});
+render();
+setInterval(()=>{if(document.activeElement.tagName!=="INPUT")render()},60000);
+</script>
+</body>
+</html>
